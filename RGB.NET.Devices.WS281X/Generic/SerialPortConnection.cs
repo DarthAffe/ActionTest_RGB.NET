@@ -28,9 +28,15 @@ namespace RGB.NET.Devices.WS281X
 
         #region Constructors
 
-        public SerialPortConnection(string port, int baudRate)
+        public SerialPortConnection(string port, int baudRate, bool useFlowControl = false)
         {
             SerialPort = new SerialPort(port, baudRate);
+
+            if (useFlowControl)
+            {
+                SerialPort.RtsEnable = true;
+                SerialPort.DtrEnable = true;
+            }
         }
 
         #endregion
