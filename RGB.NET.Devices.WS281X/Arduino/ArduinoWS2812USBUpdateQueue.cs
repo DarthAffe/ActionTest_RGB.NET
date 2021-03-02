@@ -58,6 +58,8 @@ namespace RGB.NET.Devices.WS281X.Arduino
                 int channel = channelData.Key;
                 if (!_dataBuffer.TryGetValue(channel, out byte[]? dataBuffer)) continue;
 
+                dataBuffer[0] = (byte)((channel << 4) | UPDATE_COMMAND[0]);
+
                 foreach (((int _, int key), Color value) in channelData)
                 {
                     (byte _, byte r, byte g, byte b) = value.GetRGBBytes();
