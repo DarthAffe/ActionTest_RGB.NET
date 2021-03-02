@@ -55,9 +55,9 @@ namespace RGB.NET.Devices.WS281X.Arduino
         /// </summary>
         /// <param name="port">The name of the serial-port to connect to.</param>
         /// <param name="baudRate">The baud-rate of the serial-connection.</param>
-        public ArduinoWS281XDeviceDefinition(string port, int baudRate = 115200)
+        public ArduinoWS281XDeviceDefinition(string port, int baudRate = 115200, bool useFlowControl = false)
         {
-            SerialConnection = new SerialPortConnection(port, baudRate);
+            SerialConnection = new SerialPortConnection(port, baudRate, useFlowControl);
         }
 
         #endregion
