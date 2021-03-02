@@ -6,7 +6,7 @@
 #include "hardware/clocks.h"
 #include "ws2812.pio.h"
 
-// This code allows to use the Rasperry Pi PICO as PiPicoWS2812USBDevice.
+// This code allows to use the Rasperry Pi PICO as ArduinoWS2812USBDevice.
 
 //#### CONFIGURATION ####
 
