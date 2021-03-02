@@ -56,17 +56,15 @@ namespace RGB.NET.Devices.WS281X.Arduino
                                                                                                  .GroupBy(x => x.Item1.channel))
             {
                 int channel = channelData.Key;
-                if (!_dataBuffer.TryGetValue(channel, out byte[]? dataBuffer) || (dataBuffer.Length != ((dataSet.Count * 3) + 1)))
-                    _dataBuffer[channel] = dataBuffer = new byte[(dataSet.Count * 3) + 1];
+                if (!_dataBuffer.TryGetValue(channel, out byte[]? dataBuffer)) continue;
 
-                dataBuffer[0] = (byte)((channel << 4) | UPDATE_COMMAND[0]);
-                int i = 1;
-                foreach ((byte _, byte r, byte g, byte b) in channelData.OrderBy(x => x.Item1.key)
-                                                                        .Select(x => x.Value.GetRGBBytes()))
+                foreach (((int _, int key), Color value) in channelData)
                 {
-                    dataBuffer[i++] = r;
-                    dataBuffer[i++] = g;
-                    dataBuffer[i++] = b;
+                    (byte _, byte r, byte g, byte b) = value.GetRGBBytes();
+                    int offset = (key * 3) + 1;
+                    dataBuffer[offset] = r;
+                    dataBuffer[offset + 1] = g;
+                    dataBuffer[offset + 2] = b;
                 }
                 yield return dataBuffer;
             }
@@ -94,7 +92,8 @@ namespace RGB.NET.Devices.WS281X.Arduino
                 SerialConnection.ReadTo(Prompt);
                 byte[] channelLedCountCommand = { (byte)((i << 4) | COUNT_COMMAND[0]) };
                 SendCommand(channelLedCountCommand);
-                int ledCount = SerialConnection.ReadByte();
+                int ledCount = SerialConnection.ReadByte(); 
+                _dataBuffer[i] = new byte[(ledCount * 3) + 1];
                 if (ledCount > 0)
                     yield return (i, ledCount);
             }
