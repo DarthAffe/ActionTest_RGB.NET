@@ -8,6 +8,8 @@
 
 // This code allows to use the Rasperry Pi PICO as ArduinoWS2812USBDevice.
 
+#define VERSION 1
+
 //#### CONFIGURATION ####
 
 #define CHANNELS 8 // change this only if you add or remove channels in the implementation-part. To disable channels set them to 0 leds.
@@ -44,12 +46,12 @@
 #define BUFFER_SIZE_CHANNEL_7 LEDS_CHANNEL_7 * 3
 #define BUFFER_SIZE_CHANNEL_8 LEDS_CHANNEL_8 * 3
 
-const PIO CHANNEL_PIO[CHANNELS] = { pio0, pio0, pio0, pio0, pio1, pio1, pio1, pio1 };
-const uint CHANNEL_SM[CHANNELS] = { 0, 1, 2, 3, 0, 1, 2, 3 };
+const PIO CHANNEL_PIO[CHANNELS] = {pio0, pio0, pio0, pio0, pio1, pio1, pio1, pio1};
+const uint CHANNEL_SM[CHANNELS] = {0, 1, 2, 3, 0, 1, 2, 3};
 
-const int pins[CHANNELS] = { PIN_CHANNEL_1, PIN_CHANNEL_2, PIN_CHANNEL_3, PIN_CHANNEL_4, PIN_CHANNEL_5, PIN_CHANNEL_6, PIN_CHANNEL_7, PIN_CHANNEL_8 };
-const int led_counts[CHANNELS] = { LEDS_CHANNEL_1, LEDS_CHANNEL_2, LEDS_CHANNEL_3, LEDS_CHANNEL_4, LEDS_CHANNEL_5, LEDS_CHANNEL_6, LEDS_CHANNEL_7, LEDS_CHANNEL_8 };
-const int buffer_sizes[CHANNELS] = { BUFFER_SIZE_CHANNEL_1, BUFFER_SIZE_CHANNEL_2, BUFFER_SIZE_CHANNEL_3, BUFFER_SIZE_CHANNEL_4, BUFFER_SIZE_CHANNEL_5, BUFFER_SIZE_CHANNEL_6, BUFFER_SIZE_CHANNEL_7, BUFFER_SIZE_CHANNEL_8 };
+const int pins[CHANNELS] = {PIN_CHANNEL_1, PIN_CHANNEL_2, PIN_CHANNEL_3, PIN_CHANNEL_4, PIN_CHANNEL_5, PIN_CHANNEL_6, PIN_CHANNEL_7, PIN_CHANNEL_8};
+const int led_counts[CHANNELS] = {LEDS_CHANNEL_1, LEDS_CHANNEL_2, LEDS_CHANNEL_3, LEDS_CHANNEL_4, LEDS_CHANNEL_5, LEDS_CHANNEL_6, LEDS_CHANNEL_7, LEDS_CHANNEL_8};
+const int buffer_sizes[CHANNELS] = {BUFFER_SIZE_CHANNEL_1, BUFFER_SIZE_CHANNEL_2, BUFFER_SIZE_CHANNEL_3, BUFFER_SIZE_CHANNEL_4, BUFFER_SIZE_CHANNEL_5, BUFFER_SIZE_CHANNEL_6, BUFFER_SIZE_CHANNEL_7, BUFFER_SIZE_CHANNEL_8};
 
 uint8_t buffer_channel_1[BUFFER_SIZE_CHANNEL_1];
 uint8_t buffer_channel_2[BUFFER_SIZE_CHANNEL_2];
@@ -68,15 +70,20 @@ uint8_t data_channel_6[BUFFER_SIZE_CHANNEL_6];
 uint8_t data_channel_7[BUFFER_SIZE_CHANNEL_7];
 uint8_t data_channel_8[BUFFER_SIZE_CHANNEL_8];
 
-uint8_t *buffers[] = { (uint8_t *)buffer_channel_1, (uint8_t *)buffer_channel_2, (uint8_t *)buffer_channel_3, (uint8_t *)buffer_channel_4, (uint8_t *)buffer_channel_5, (uint8_t *)buffer_channel_6, (uint8_t *)buffer_channel_7, (uint8_t *)buffer_channel_8 };
-uint8_t *channels[] = { (uint8_t *)data_channel_1, (uint8_t *)data_channel_2, (uint8_t *)data_channel_3, (uint8_t *)data_channel_4, (uint8_t *)data_channel_5, (uint8_t *)data_channel_6, (uint8_t *)data_channel_7, (uint8_t *)data_channel_8 };
+uint8_t *buffers[] = {(uint8_t *)buffer_channel_1, (uint8_t *)buffer_channel_2, (uint8_t *)buffer_channel_3, (uint8_t *)buffer_channel_4, (uint8_t *)buffer_channel_5, (uint8_t *)buffer_channel_6, (uint8_t *)buffer_channel_7, (uint8_t *)buffer_channel_8};
+uint8_t *channels[] = {(uint8_t *)data_channel_1, (uint8_t *)data_channel_2, (uint8_t *)data_channel_3, (uint8_t *)data_channel_4, (uint8_t *)data_channel_5, (uint8_t *)data_channel_6, (uint8_t *)data_channel_7, (uint8_t *)data_channel_8};
 
 bool buffer_dirty[CHANNELS];
 bool data_dirty[CHANNELS];
 
+static inline void send(uint8_t data)
+{
+  printf("%c", data);
+}
+
 static inline void prompt()
 {
-  printf("%c", SERIAL_PROMPT);
+  send(SERIAL_PROMPT);
 }
 
 static inline void put_pixel(PIO pio, int sm, uint32_t pixel_grb)
@@ -106,9 +113,9 @@ void update_buffer(int channel)
 
   for (int i = 0; i < length; i++)
   {
-    int read = getchar_timeout_us(10000);
-    if(read < 0) 
-    { 
+    int read = getchar_timeout_us(100000);
+    if (read < 0)
+    {
       __builtin_memset(buffer, 0, (uint)length);
       break;
     }
@@ -122,7 +129,7 @@ void update_channel(int channel)
 {
   PIO pio = CHANNEL_PIO[channel];
   uint sm = CHANNEL_SM[channel];
-  uint8_t* data = channels[channel];
+  uint8_t *data = channels[channel];
   int count = led_counts[channel];
 
   for (int i = count - 1; i >= 0; i--)
@@ -139,7 +146,7 @@ void update_channel(int channel)
 }
 
 void update_leds()
-{  
+{
   for (int i = 0; i < CHANNELS; i++)
   {
     if (data_dirty[i])
@@ -178,17 +185,27 @@ void setup()
 
   for (int i = 0; i < CHANNELS; i++)
   {
-    if(led_counts[i] > 0)
+    if (led_counts[i] > 0)
     {
       init_channel(i);
+
+      int length = buffer_sizes[i];
+      uint8_t *buffer = buffers[i];
+      uint8_t *data = channels[i];
+
+      __builtin_memset(buffer, 0, (uint)length);
+      __builtin_memset(data, 0, (uint)length);
+      buffer_dirty[i] = true;
     }
   }
-  
+
   prompt();
 }
 
 void loop_core1()
 {
+  stage_data();
+  update_leds();
   multicore_fifo_push_blocking(2);
   while (1)
   {
@@ -208,92 +225,47 @@ void loop()
     return;
   }
 
-  switch (command)
+  int request = command & 0x0F;
+  int channel = (command >> 4) & 0x0F;
+
+  if (channel == 0) // Device-commands
   {
-  // ### default ###
-  case 0x01: // get channel-count
-    printf("%c", CHANNELS);
-    break;
-
-  case 0x02: // update
-    multicore_fifo_pop_blocking();
-    multicore_fifo_push_blocking(1);
-    multicore_fifo_pop_blocking();
-    break;
-
-  case 0x0F: // ask for prompt
-    break;
-
-  // ### channel 1 ###
-  case 0x11: // get led-count of channel 1
-    printf("%c", LEDS_CHANNEL_1);
-    break;
-  case 0x12: // set led of channel 1
-    update_buffer(0);
-    break;
-
-  // ### channel 2 ###
-  case 0x21: // get led-count of channel 2
-    printf("%c", LEDS_CHANNEL_2);
-    break;
-  case 0x22: // set led of channel 2
-    update_buffer(1);
-    break;
-
-  // ### channel 3 ###
-  case 0x31: // get led-count of channel 3
-    printf("%c", LEDS_CHANNEL_3);
-    break;
-  case 0x32: // set led of channel 3
-    update_buffer(2);
-    break;
-
-  // ### channel 4 ###
-  case 0x41: // get led-count of channel 4
-    printf("%c", LEDS_CHANNEL_4);
-    break;
-  case 0x42: // set led of channel 4
-    update_buffer(3);
-    break;
-
-  // ### channel 5 ###
-  case 0x51: // get led-count of channel 5
-    printf("%c", LEDS_CHANNEL_5);
-    break;
-  case 0x52: // set led of channel 5
-    update_buffer(4);
-    break;
-
-  // ### channel 6 ###
-  case 0x61: // get led-count of channel 6
-    printf("%c", LEDS_CHANNEL_6);
-    break;
-  case 0x62: // set led of channel 6
-    update_buffer(5);
-    break;
-
-  // ### channel 7 ###
-  case 0x71: // get led-count of channel 7
-    printf("%c", LEDS_CHANNEL_7);
-    break;
-  case 0x72: // set led of channel 7
-    update_buffer(6);
-    break;
-
-  // ### channel 8 ###
-  case 0x81: // get led-count of channel 8
-    printf("%c", LEDS_CHANNEL_8);
-    break;
-  case 0x82: // set led of channel 8
-    update_buffer(7);
-    break;
-
-  // ### default ###
-  default:
-    return; // no prompt
+    if (request == 0x01)
+    {
+      send(CHANNELS);
+      prompt();
+    }
+    else if (request == 0x02)
+    {
+      multicore_fifo_pop_blocking();
+      multicore_fifo_push_blocking(1);
+      multicore_fifo_pop_blocking();
+      prompt();
+    }
+    else if (request == 0x0E)
+    {
+      send(VERSION);
+      prompt();
+    }
+    else if (request == 0x0F)
+    {
+      prompt();
+    }
   }
-
-  prompt();
+  else if (channel <= CHANNELS)
+  {
+    channel--;
+    if (request == 0x01)
+    {
+      send(led_counts[channel]);
+      prompt();
+    }
+    else if (request == 0x02)
+    {
+      update_buffer(channel);
+      prompt();
+    }
+  }
 }
 
 int main()
