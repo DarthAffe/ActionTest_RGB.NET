@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using HidSharp;
 using RGB.NET.Core;
 
 namespace RGB.NET.Devices.WS281X
@@ -37,7 +38,7 @@ namespace RGB.NET.Devices.WS281X
         public List<IWS281XDeviceDefinition> DeviceDefinitions { get; } = new();
 
         /// <summary>
-        /// The <see cref="DeviceUpdateTrigger"/> used to trigger the updates for corsair devices. 
+        /// The <see cref="DeviceUpdateTrigger"/> used to trigger the updates for devices. 
         /// </summary>
         public DeviceUpdateTrigger UpdateTrigger { get; }
 
@@ -78,6 +79,16 @@ namespace RGB.NET.Devices.WS281X
                 UpdateTrigger.Stop();
 
                 List<IRGBDevice> devices = new();
+
+                foreach (HidDevice hidDevice in HID.HID.GetDevices())
+                {
+                    try
+                    {
+                        devices.AddRange(HID.HID.CreateDevices(UpdateTrigger, hidDevice));
+                    }
+                    catch { if (throwExceptions) throw; }
+                }
+
                 foreach (IWS281XDeviceDefinition deviceDefinition in DeviceDefinitions)
                 {
                     try
@@ -100,7 +111,7 @@ namespace RGB.NET.Devices.WS281X
 
             return true;
         }
-        
+
         /// <inheritdoc />
         public void Dispose()
         {
