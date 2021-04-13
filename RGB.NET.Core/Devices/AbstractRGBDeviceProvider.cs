@@ -93,6 +93,7 @@ namespace RGB.NET.Core
         {
             foreach (IDeviceUpdateTrigger updateTrigger in UpdateTriggers.Values)
                 updateTrigger.Dispose();
+            UpdateTriggers.Clear();
 
             Devices = Enumerable.Empty<IRGBDevice>();
             IsInitialized = false;
