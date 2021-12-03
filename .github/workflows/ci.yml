@@ -3,6 +3,9 @@ name: RGB.NET-CI
 on:
   push:
     branches: [ Development ]
+    paths:
+      - '**.cs'
+      - '**.csproj'
 
 jobs:
   build:
@@ -23,3 +26,8 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2.2.4
+      with:
+        name: RGB.NET
+        if-no-files-found: error
