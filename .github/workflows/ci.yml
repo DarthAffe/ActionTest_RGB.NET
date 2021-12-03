@@ -1,6 +1,3 @@
-- name: Git Semantic Version
-  uses: PaulHatch/semantic-version@v4.0.3
-
 name: RGB.NET-CI
 
 on:
@@ -17,7 +14,9 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 6.0.x        
+    - name: Git Semantic Version
+      uses: PaulHatch/semantic-version@v4.0.3
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
