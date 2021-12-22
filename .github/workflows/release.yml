@@ -20,6 +20,7 @@ jobs:
       id: versioning
       uses: PaulHatch/semantic-version@v4.0.3
       with:
+        short_tags: false
         format: "${major}.${minor}.${patch}"
     - name: Restore dependencies
       run: dotnet restore
