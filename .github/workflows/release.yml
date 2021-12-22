@@ -41,7 +41,5 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-        files:
-          bin/net**/RGB.NET.*.dll
         tag_name: "${major}.${minor}.${patch}"
         generate_release_notes: true
