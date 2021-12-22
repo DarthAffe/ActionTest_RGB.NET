@@ -44,6 +44,12 @@ jobs:
         name: RGB.NET-NET6
         path: bin/net6.0/RGB.NET.*.dll
         if-no-files-found: error
+    - name: Upload Nuget Build Artifact
+      uses: actions/upload-artifact@v2.2.4
+      with:
+        name: RGB.NET-Nugets
+        path: bin/*nupkg
+        if-no-files-found: error
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
