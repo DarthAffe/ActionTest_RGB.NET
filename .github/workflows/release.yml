@@ -1,4 +1,4 @@
-name: RGB.NET-release
+name: RGB.NET-Release
 
 on:
   push:
