@@ -17,6 +17,7 @@ jobs:
       with:
         dotnet-version: 6.0.x        
     - name: Git Semantic Version
+      id: versioning
       uses: PaulHatch/semantic-version@v4.0.3
       with:
         format: "${major}.${minor}.${patch}"
@@ -41,5 +42,6 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: "${major}.${minor}.${patch}"
+        tag_name: ${{ steps.versioning.outputs.version_tag }}
         generate_release_notes: true
+        files: bin/net6.0/RGB.NET.*.dll
