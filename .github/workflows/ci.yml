@@ -44,3 +44,17 @@ jobs:
         name: RGB.NET-NET6
         path: bin/net6.0/RGB.NET.*.dll
         if-no-files-found: error
+    - name: Upload Nuget Build Artifact
+      uses: actions/upload-artifact@v2.2.4
+      with:
+        name: RGB.NET-Nugets
+        path: bin/*nupkg
+        if-no-files-found: error
+    - name: Nuget Push
+      run: dotnet nuget push "bin/*.nupkg" --skip-duplicate --api-key ${NUGET_TOKEN}
+      env:
+        NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+    - name: Nuget Push Symbols
+      run: dotnet nuget push "bin/*.snupkg" --skip-duplicate --api-key ${NUGET_TOKEN}
+      env:
+        NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
