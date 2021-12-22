@@ -23,10 +23,12 @@ jobs:
         dotnet-version: 6.0.x        
     - name: Git Semantic Version
       uses: PaulHatch/semantic-version@v4.0.3
+      with:
+        short_tags: false
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build --no-restore /p:Version=${{ steps.versioning.outputs.version }}
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Upload a Build Artifact NET5
