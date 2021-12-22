@@ -18,7 +18,7 @@ You can include it either by adding ```http://nuget.arge.be/v3/index.json``` to 
 At the end of the year with the release of .NET 5 the support for old .NET-Framwork versions will be droppped!   
 It's not recommended to use RGB.NET in projects targeting .NET 4.x that aren't planned to be moved to Core/.NET 5 in the future.
 
-
+asdfasdfasdf
 ### Device-Layouts
 To be able to have devices with correct LED-locations and sizes they need to be layouted. Pre-created layouts can be found at https://github.com/DarthAffe/RGB.NET-Resources.   
 
